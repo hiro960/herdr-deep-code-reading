@@ -1,0 +1,75 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A push that lands while an earlier run is still going makes that run's answer
+# stale, so it is cancelled rather than left to finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # The plugin manifest declares linux and macos, so both are tested. Several of
+    # these tests build a real repository and run git against it, and git behaves
+    # differently enough between the two — path resolution through a symlinked
+    # temporary directory, for one — that one platform would not answer for both.
+    name: node ${{ matrix.node }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: ["18", "20", "22"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # The plugin has no runtime dependencies, so the tests need nothing installed.
+      # Each test that needs an identity passes one with `git -c`, so none is
+      # configured here either.
+      - run: node --version && git --version
+
+      - run: npm test
+
+  coverage:
+    # One job, on one version: --test-coverage-exclude needs Node 22, and the number
+    # is a property of the tests rather than of the runtime they ran on.
+    name: coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # The thresholds are the floor the project holds itself to, not the number it
+      # is at: the run fails if coverage drops below them.
+      - run: npm run coverage
+
+  lint:
+    # ESLint is a dev dependency, so this is the one job that installs anything. It
+    # runs on a single version because the answer does not depend on the runtime.
+    name: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint

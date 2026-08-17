@@ -1,0 +1,23 @@
+{
+  "name": "herdr-deep-code-reading",
+  "version": "1.0.0",
+  "description": "Reading code closely, in a Herdr pane",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hiro960/herdr-deep-code-reading.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "test": "node --test test/*.test.js",
+    "coverage": "node --test --experimental-test-coverage --test-coverage-exclude='test/**' --test-coverage-lines=96 --test-coverage-branches=90 --test-coverage-functions=96 test/*.test.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.1",
+    "globals": "^17.11.0"
+  }
+}

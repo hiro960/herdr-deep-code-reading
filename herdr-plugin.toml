@@ -1,0 +1,61 @@
+id = "herdr-deep-code-reading"
+name = "Herdr Deep Code Reading"
+version = "1.0.0"
+min_herdr_version = "0.8.0"
+description = "Reading code closely, in a Herdr pane"
+platforms = ["linux", "macos"]
+
+# No npm dependencies, so no [[build]] step is needed.
+
+# --- Actions ------------------------------------------------------------
+# Each action resolves the git repository from the calling pane's working
+# directory and opens a review pane.
+#
+# An action's working directory is the plugin root, so the target repository
+# is read from HERDR_PLUGIN_CONTEXT_JSON instead (see bin/open.js).
+
+[[actions]]
+id = "review"
+title = "Diff: working tree vs HEAD"
+contexts = ["pane", "workspace"]
+command = ["node", "bin/open.js", "review"]
+
+[[actions]]
+id = "staged"
+title = "Diff: staged changes"
+contexts = ["pane", "workspace"]
+command = ["node", "bin/open.js", "staged"]
+
+[[actions]]
+id = "branch"
+title = "Diff: whole branch (default branch...HEAD)"
+contexts = ["pane", "workspace"]
+command = ["node", "bin/open.js", "branch"]
+
+[[actions]]
+id = "files"
+title = "Files: browse and read the repository"
+contexts = ["pane", "workspace"]
+command = ["node", "bin/open.js", "files"]
+
+[[actions]]
+id = "log"
+title = "Log: the commit graph, its branches, and each commit's diff"
+contexts = ["pane", "workspace"]
+command = ["node", "bin/open.js", "log"]
+
+# --- Panes --------------------------------------------------------------
+# placement = "zoomed" matters: two-column diffs need roughly 160 columns,
+# which a split pane cannot provide.
+#
+# A pane's command is resolved through PATH, so it starts with "node".
+# The bin/review.js argument is resolved relative to the working directory,
+# so `plugin pane open` must not be given --cwd; it would break that path.
+# The target repository is passed through --env HERDR_DEEP_CODE_READING_REPO instead.
+
+[[panes]]
+id = "review"
+title = "Diff review"
+placement = "zoomed"
+command = ["node", "bin/review.js"]
+

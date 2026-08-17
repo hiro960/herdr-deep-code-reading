@@ -1,0 +1,117 @@
+#!/usr/bin/env node
+"use strict";
+
+// Action entry point. Resolves the repository from the calling pane's working
+// directory and opens the pane the requested mode belongs to.
+//
+// Note: Herdr sets this script's working directory to the plugin root, so the
+// user's repository must be read from HERDR_PLUGIN_CONTEXT_JSON.
+
+const { spawnSync } = require("node:child_process");
+
+const { DEFAULT_MODE, entrypointFor } = require("../lib/entrypoints");
+const git = require("../lib/git");
+
+const PANE_PLACEMENT = "zoomed";
+const EXIT_FAILURE = 1;
+const NOTIFICATION_TITLE = "herdr-deep-code-reading";
+
+function herdrBin() {
+  return process.env.HERDR_BIN_PATH || "herdr";
+}
+
+/** Report a failure on stderr and as a Herdr notification, then exit. */
+function fail(message) {
+  process.stderr.write(`${NOTIFICATION_TITLE}: ${message}\n`);
+  spawnSync(herdrBin(), ["notification", "show", NOTIFICATION_TITLE, "--body", message], {
+    stdio: "ignore",
+  });
+  process.exit(EXIT_FAILURE);
+}
+
+/** Read the calling pane's working directory out of the context JSON. */
+function callerCwd() {
+  const raw = process.env.HERDR_PLUGIN_CONTEXT_JSON;
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const context = JSON.parse(raw);
+    return context.focused_pane_cwd || context.workspace_cwd || null;
+  } catch (error) {
+    process.stderr.write(`${NOTIFICATION_TITLE}: could not parse context: ${error.message}\n`);
+    return null;
+  }
+}
+
+function openPane(entrypoint, repoDir, mode) {
+  const result = spawnSync(
+    herdrBin(),
+    [
+      "plugin",
+      "pane",
+      "open",
+      "--plugin",
+      process.env.HERDR_PLUGIN_ID || "herdr-deep-code-reading",
+      "--entrypoint",
+      entrypoint,
+      "--placement",
+      PANE_PLACEMENT,
+      "--env",
+      `HERDR_DEEP_CODE_READING_REPO=${repoDir}`,
+      "--env",
+      `HERDR_DEEP_CODE_READING_MODE=${mode}`,
+      "--focus",
+    ],
+    { encoding: "utf8" }
+  );
+
+  if (result.error) {
+    fail(`could not start herdr: ${result.error.message}`);
+    return;
+  }
+  if (result.status !== 0) {
+    fail(`could not open the pane: ${(result.stderr || "").trim()}`);
+    return;
+  }
+
+  // Nothing is written on the way out. Opening the pane is the whole result, and it
+  // is already on screen; echoing what `pane open` answered with put a stray `{}`
+  // under the invocation of anyone who ran the action from a shell. A failure still
+  // has something to say, and says it on stderr.
+}
+
+function main() {
+  const mode = process.argv[2] || DEFAULT_MODE;
+  const entrypoint = entrypointFor(mode);
+  if (entrypoint === null) {
+    fail(`unknown mode: ${mode}`);
+    return;
+  }
+
+  const cwd = callerCwd();
+  if (cwd === null) {
+    fail("could not determine the calling pane's working directory");
+    return;
+  }
+
+  // Every mode needs a repository, the file browser included: its listing comes from
+  // `git ls-files`. Refusing here is what keeps a pane from opening only to die on
+  // the same condition a moment later, with its message already off screen.
+  const repoDir = git.resolveRepoRoot(cwd);
+  if (repoDir === null) {
+    fail(`not a git repository: ${cwd}`);
+    return;
+  }
+
+  openPane(entrypoint, repoDir, mode);
+}
+
+// git is a child process, so it can fail to start at all. Reporting that through the
+// same notification the other failures use beats a stack trace in a pane nobody reads.
+try {
+  main();
+} catch (error) {
+  fail(error.message);
+}
