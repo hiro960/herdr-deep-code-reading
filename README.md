@@ -164,7 +164,9 @@ yesterday must not quietly do something else today.
 
 **`j`/`k` always move the cursor down the lines and `n`/`p` always move the file
 list.** Neither takes a turn at being the other, and there is no focus to move
-between them.
+between them. The log is the other way round — four panes and a `Tab` that cycles them
+— so `Tab` pressed here, where it would have nowhere to go, says what moves the file
+list instead of doing nothing at all.
 
 Staging follows `git status`, which only lines up with `review` mode's file list, so
 the `staged` and `branch` modes leave those three keys unbound. `D` is what they offer

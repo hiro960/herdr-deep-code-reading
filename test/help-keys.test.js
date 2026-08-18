@@ -429,13 +429,20 @@ test("d pages through the diff wherever the reader is", (t) => {
   assert.ok(paged.cursor > state.cursor);
 });
 
-test("Tab does nothing in the diff view, because there is nowhere for it to go", (t) => {
+test("Tab moves nothing in the diff view, because there is nowhere for it to go", (t) => {
   // It used to move the focus between the panel and the diff. Both are live now, so
-  // there is no second place to put it and the footer no longer offers the key.
+  // there is no second place to put it and the footer does not offer the key. What it
+  // does now is say so: doing nothing at all left a reader who had learnt `Tab` in the
+  // log with no way to find out what this screen has instead.
   const root = makeRepo(t);
   const state = createState(root, "review", COLUMNS);
 
-  assert.strictEqual(reduce(state, "tab", VIEWPORT), state);
+  const pressed = reduce(state, "tab", VIEWPORT);
+
+  assert.strictEqual(pressed.cursor, state.cursor);
+  assert.strictEqual(pressed.selectedIndex, state.selectedIndex);
+  assert.strictEqual(pressed.view, state.view);
+  assert.match(pressed.message, /n\/p/);
   assert.doesNotMatch(toScreenModel(state).help, /Tab/);
 });
 

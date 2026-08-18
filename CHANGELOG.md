@@ -5,6 +5,17 @@ versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Fixed
+
+- **`Tab` in a diff says what moves the file list.** The diff draws two panes and has
+  no focus between them: `j`/`k` always move the lines and `n`/`p` always move the file
+  list, which is a better arrangement than a focus nobody can see — and an invisible
+  one. The log next door has four panes and a `Tab` that cycles them, so a reader
+  arrives at a diff, presses the key they have just learnt, and is told nothing at all.
+  It now names `n`/`p` rather than passing the press over. `h` at the start of a line
+  is left alone: a movement key at the end of its range is legitimately inert, and one
+  that complained would complain on every held keypress.
+
 ### Added
 
 - **The browser copies, renames and deletes a file.** yazi's keys for the same four
