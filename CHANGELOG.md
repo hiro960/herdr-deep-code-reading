@@ -7,6 +7,15 @@ versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- **Staging a file no longer carries the selection away from it.** Untracked files were
+  appended to whatever `git diff HEAD` reported, so a new file sat at the bottom of the
+  list until it was staged — and then it became part of the diff and moved into path
+  order, which for a name early in the alphabet is the top. The reload follows a file by
+  its path, correctly, so the reader's selection went with it, and `n`, space, `n`, space
+  walked the list from the beginning again instead of forward. The list is in path order
+  now whatever state a file is in, and staging does not change a path, so nothing a
+  reader stages moves.
+
 - **A pasted commit message keeps every line of itself.** A terminal sends a paste as
   the characters it holds, and a newline among them is the same byte the Enter key
   sends — so a message pasted in three lines was one line committed and two lines of

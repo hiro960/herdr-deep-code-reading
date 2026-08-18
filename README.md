@@ -172,6 +172,12 @@ yesterday must not quietly do something else today.
 | `D` | Load the working tree's diff instead of this one (every mode but `review`) |
 | `r` | Reload |
 
+The file list is in path order, whatever state each file is in. Untracked files used to
+be appended after everything `git diff HEAD` reported, which put a new file at the bottom
+until it was staged and then moved it into path order — carrying the selection with it,
+because a reload follows a file by its path. Nothing a reader stages moves now, so
+`space` and `n` walk the list once.
+
 **`j`/`k` always move the cursor down the lines and `n`/`p` always move the file
 list.** Neither takes a turn at being the other, and there is no focus to move
 between them. The log is the other way round — four panes and a `Tab` that cycles them

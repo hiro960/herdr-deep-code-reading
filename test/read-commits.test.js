@@ -123,7 +123,13 @@ function makeRepo(t) {
     execFileSync("git", [...GIT_IDENTITY, "commit", "-qm", subject], { cwd: root, stdio: "ignore" });
   }
 
-  return { root, store: path.join(root, ".read-commits.json") };
+  // Outside the repository, where the reader's own store lives. Kept inside it, the
+  // store is an untracked file of the repository under test — it turned up in the
+  // review list, and in path order a dotfile turns up first.
+  const stores = fs.mkdtempSync(path.join(os.tmpdir(), "herdr-deep-code-reading-store-"));
+  t.after(() => fs.rmSync(stores, { recursive: true, force: true }));
+
+  return { root, store: path.join(stores, "read-commits.json") };
 }
 
 function open(t) {

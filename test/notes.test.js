@@ -44,7 +44,13 @@ function makeRepo(t) {
   );
   fs.writeFileSync(path.join(root, "a.js"), "ONE\nTWO\nTHREE\n");
 
-  return { root, notes: path.join(root, ".notes.json") };
+  // Outside the repository, where the reader's own store lives. Kept inside it, the
+  // store is an untracked file of the repository under test — it turned up in the
+  // review list, and in path order a dotfile turns up first.
+  const stores = fs.mkdtempSync(path.join(os.tmpdir(), "herdr-deep-code-reading-store-"));
+  t.after(() => fs.rmSync(stores, { recursive: true, force: true }));
+
+  return { root, notes: path.join(stores, "notes.json") };
 }
 
 function press(state, keys) {
