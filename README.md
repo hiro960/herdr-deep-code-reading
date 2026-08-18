@@ -16,8 +16,10 @@ the code it lands in are the same act.
 
 **It changes the repository only through git**, and only through the few commands a
 reader needs: `git add`, `git restore --staged`, `git commit`, and the fetch, pull and
-push the log offers. No file of yours is ever written by this. `E` hands the file to
-your own `$EDITOR`, the way yazi does, and steps aside while you use it.
+push the log offers. **Nothing writes into a file of yours.** The browser copies, renames
+and deletes whole files, which is what a reader does to a tree they are reading — but a
+line of one is your editor's, and `E` hands the file over the way yazi does and steps
+aside while you use it.
 
 What it does write is its own: bookmarks, which files and commits you have read, where
 the reading has been, and what an agent has answered, in JSON under the state directory
@@ -178,12 +180,30 @@ whichever diff is already on screen and never changes which one that is.
 | `h`, `Esc` | Step out to the parent |
 | `f` | Filter the listing by file name |
 | `a` | Make a new empty file, under this directory |
+| `y` | Remember this file, for `p` to write elsewhere |
+| `p` | Write the remembered file here, under its own name |
+| `D` | Delete this file — asks first |
+| `r` | Rename this file |
 | `/` | Search inside the files (`Ctrl+R` for a regular expression) |
 | `Tab` | Show the selection's contents or its own diff |
 
 In a repository the listing comes from `git ls-files`, so `.git` and everything
 `.gitignore` names are absent without a filesystem walk. Files over 2MB, and files with
 a NUL byte in their first 8KB, are listed but not read.
+
+**`y`, `p`, `D` and `r` move whole files about.** They are yazi's keys for the same
+four things, less the one that would cost you something: `y` remembers the file under
+the cursor and `p` writes it into the directory you have walked to, under its own name;
+`r` renames, with the old name already in the field; `D` deletes, and names what is
+about to go and waits for the same key again, the way the pull and the push do. `d` is
+not the delete key — it pages the listing here as it does everywhere else, and a reader
+meaning to scroll must not lose a file for it. `D` is therefore the one letter the
+browser needed for something of its own: `e` opens the diff and `D` is waiting there,
+so the way back to the working tree is two keys in this one view.
+
+Nothing is ever overwritten. A destination something already answers to is refused
+rather than replaced, and all four act on a file and never on a directory. A delete is a
+delete: the file is gone rather than in a wastebasket, which is why it asks.
 
 **`a` makes a file.** Name it and it exists, empty, under the directory being browsed —
 yazi's key for the same thing. What goes in it is `E`'s business, so the new file opens
@@ -848,8 +868,8 @@ both carry the version, and a test fails if they disagree.
 
 Not offered, deliberately: hunk-level staging and hunk-level conflict resolution,
 force-push of any kind, amend, revert, discard, checkout, branch, rebase, cherry-pick,
-stash, mouse support, comment persistence across sessions, and Windows — the plugin
-declares macOS and Linux.
+stash, anything at all done to a directory rather than to a file, mouse support, comment
+persistence across sessions, and Windows — the plugin declares macOS and Linux.
 
 The log is where the line runs, and the three keys that cross it say where it is. A
 fetch moves nothing: it asks what has arrived, which is a question a reader is asking
@@ -868,11 +888,14 @@ file neither side wrote — your editor's job, and `E` is how it gets it. Readin
 repository and rearranging one are still different jobs, and this is still a tool for
 the first.
 
-The same line decides what `a` does. It makes a file and it makes it empty: naming
-something that does not exist yet is the one part of writing a file that a browser is
-the right place for, and everything after that — a line of it, a word of it — belongs to
-the editor. There is no rename, no delete, no copy. Those are not naming a file, they
-are moving your work around, and `E` and a shell are both a keystroke away.
+The same line decides what the browser's file keys do. `a` makes a file and makes it
+empty; `y`, `p`, `D` and `r` move whole files about. What none of them does is write
+into one: a line of a file, a word of it, is the editor's, and `E` is a keystroke away.
+Naming a file, copying it, dropping it and calling it something else are what a reader
+does to the tree in front of them, and leaving the pane to do them is leaving the pane.
+Where the line still runs is at the directory: these four act on a file and never on a
+directory, because the listing is built from files and a recursive delete is the widest
+blast radius there is for the narrowest gain.
 
 ## License
 

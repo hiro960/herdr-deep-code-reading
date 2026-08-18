@@ -127,17 +127,30 @@ test("D reaches it from a commit's diff opened in the whole pane", (t) => {
   assert.strictEqual(stageEffectOf(home).type, "stage");
 });
 
-test("D reaches it from the file browser, whichever diff was behind it", (t) => {
+test("the browser reaches it through the diff, because D deletes a file there", (t) => {
+  // The one view that needed the letter for something of its own — see
+  // lib/state/views/files. `e` opens the diff from the browser and `D` is waiting in
+  // it, so the way home is two keys rather than one, in one view.
   const root = makeRepo(t);
   const browse = press(createState(root, "branch", COLUMNS), ["e"]);
   assert.strictEqual(browse.view, "browse");
   assert.strictEqual(browse.mode, "branch");
 
-  const home = reduce(browse, WORKING_TREE_KEY, VIEWPORT);
+  const home = press(browse, ["e", WORKING_TREE_KEY]);
 
   assert.strictEqual(home.view, "diff");
   assert.strictEqual(home.mode, "review");
   assert.notStrictEqual(home.browse, null, "e still has a directory to go back to");
+});
+
+test("D in the browser is the file key, not the way home", (t) => {
+  const root = makeRepo(t);
+  const browse = press(createState(root, "branch", COLUMNS), ["e"]);
+
+  const pressed = reduce(browse, WORKING_TREE_KEY, VIEWPORT);
+
+  assert.strictEqual(pressed.view, "browse");
+  assert.strictEqual(pressed.mode, "branch", "it went home instead of asking");
 });
 
 // --- coming back ------------------------------------------------------------

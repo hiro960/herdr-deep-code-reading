@@ -7,6 +7,25 @@ versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **The browser copies, renames and deletes a file.** yazi's keys for the same four
+  things, in the screen they were borrowed from: `y` remembers the file under the cursor
+  and `p` writes it into the directory you have walked to, under its own name; `r`
+  renames, with the old name already in the field; `D` deletes, naming what is about to
+  go and waiting for the same key again, the way the pull and the push do. `d` is not
+  the delete key — it pages the listing here as it does everywhere else, and a reader
+  meaning to scroll must not lose a file for it. `D` is therefore the one letter the
+  browser needed for something of its own, so the way back to the working tree's diff is
+  `e` and then `D`, two keys in the one view that needed the letter.
+
+  This moves the line the plugin drew. It used to be that naming a file was a browser's
+  business and everything else was an editor's; it is now that whole files are the
+  browser's and a line of one is still the editor's. Nothing is ever overwritten — a
+  destination something already answers to is refused rather than replaced — and all
+  four act on a file and never on a directory, because the listing is built from files
+  and a recursive delete is the widest blast radius there is for the narrowest gain. A
+  delete is a delete: the file is gone rather than in a wastebasket, which is why it
+  asks first.
+
 - **A directory that is not a repository opens.** It used to refuse: every mode needed
   a repository, the browser included, because the listing came from `git ls-files`. But
   most of what this does is reading, and reading wants a file rather than a history — so

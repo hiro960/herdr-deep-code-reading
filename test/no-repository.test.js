@@ -115,7 +115,7 @@ test("finding text in the open file needs no repository either", (t) => {
 
 // --- the keys that are about a repository ------------------------------------
 
-const GIT_KEYS = ["e diff", "D working tree", "L log", "# find in history", "Tab contents/diff"];
+const GIT_KEYS = ["e diff", "L log", "# find in history", "Tab contents/diff"];
 
 test("the footer offers no key that needs a repository", (t) => {
   const help = helpText(open(t));
@@ -147,7 +147,7 @@ test("a repository's footer is untouched", (t) => {
 test("pressing one anyway says what it needs rather than failing", (t) => {
   const state = open(t);
 
-  for (const key of ["L", "D", "#"]) {
+  for (const key of ["L", "#", "e"]) {
     const pressed = reduce(state, key, VIEWPORT);
     assert.strictEqual(pressed.view, "browse", `${key} left the browser`);
     assert.match(pressed.message, /repository/i, `${key} said nothing`);
