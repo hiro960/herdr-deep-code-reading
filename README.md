@@ -130,10 +130,20 @@ the screen.
 | `Enter` | Accept |
 | `Esc` | Cancel |
 | `Ctrl+D` | Start a new line, in a comment, a commit message, or a question |
+| paste | Whatever was copied, newlines and all — the field stays open |
 | `Ctrl+R` | Switch a search between literal text and a regular expression |
 | `Ctrl+C` | Quit, half-written comment included |
 
 `Q` is ordinary text while a field is open, so `Ctrl+C` is the way out from there.
+
+**A paste keeps its newlines.** A terminal sends one as the characters it holds, and a
+newline among them is the byte `Enter` sends — so a commit message pasted in three lines
+used to be one line committed and two lines of keystrokes run against whatever came
+next. The pane asks the terminal for bracketed paste, which wraps what arrives in
+markers, and what is between them is text: it lands in the field whole, where the field
+takes a line break, and with the breaks closed up in a filter or a query, which are one
+line by nature. A paste with no field open does nothing at all — a pasted `D` in the
+browser must not arm the delete it names.
 
 **Quitting is `Q`, not `q`.** Unshifted it was the easiest key on the board to press by
 accident — one tap, no question asked where nothing was unsent, and a session's reading

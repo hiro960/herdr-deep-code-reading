@@ -7,6 +7,19 @@ versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- **A pasted commit message keeps every line of itself.** A terminal sends a paste as
+  the characters it holds, and a newline among them is the same byte the Enter key
+  sends — so a message pasted in three lines was one line committed and two lines of
+  keystrokes run against whatever came next. The pane now asks the terminal for
+  bracketed paste, which wraps what arrives in markers, and reads what is between them
+  as text rather than as keys: it lands in the field whole, control characters stripped
+  the way everything else drawn here is, and the field stays open. The fields that are
+  one line by nature — a filter, a search, the quick find — take the same text with the
+  breaks closed up, because a newline in one matches nothing. A paste that arrives split
+  across two chunks of stdin is carried across them, since the tail of a large one
+  resuming as keystrokes is the same failure later. And a paste with no field open does
+  nothing at all: a pasted `D` in the browser must not arm the delete it names.
+
 - **`Tab` in a diff says what moves the file list.** The diff draws two panes and has
   no focus between them: `j`/`k` always move the lines and `n`/`p` always move the file
   list, which is a better arrangement than a focus nobody can see — and an invisible
