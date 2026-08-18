@@ -7,6 +7,7 @@
 // Note: Herdr sets this script's working directory to the plugin root, so the
 // user's repository must be read from HERDR_PLUGIN_CONTEXT_JSON.
 
+const fs = require("node:fs");
 const { spawnSync } = require("node:child_process");
 
 const { DEFAULT_MODE, entrypointFor } = require("../lib/entrypoints");
@@ -27,6 +28,15 @@ function fail(message) {
     stdio: "ignore",
   });
   process.exit(EXIT_FAILURE);
+}
+
+/** Whether a path is a directory that can be read. */
+function isDirectory(target) {
+  try {
+    return fs.statSync(target).isDirectory();
+  } catch {
+    return false;
+  }
 }
 
 /** Read the calling pane's working directory out of the context JSON. */
@@ -96,16 +106,17 @@ function main() {
     return;
   }
 
-  // Every mode needs a repository, the file browser included: its listing comes from
-  // `git ls-files`. Refusing here is what keeps a pane from opening only to die on
-  // the same condition a moment later, with its message already off screen.
-  const repoDir = git.resolveRepoRoot(cwd);
-  if (repoDir === null) {
-    fail(`not a git repository: ${cwd}`);
+  // A directory git has never heard of is still full of files, and reading them is most
+  // of what this pane does — so the place the reader was standing is the place it opens
+  // on, and what needs a history is withheld inside. A directory that is not there at
+  // all is the one thing still refused: nothing can be read from it, and the refusal
+  // has to happen here rather than in a pane whose message is already off screen.
+  if (!isDirectory(cwd)) {
+    fail(`no such directory: ${cwd}`);
     return;
   }
 
-  openPane(entrypoint, repoDir, mode);
+  openPane(entrypoint, git.resolveRepoRoot(cwd) || cwd, mode);
 }
 
 // git is a child process, so it can fail to start at all. Reporting that through the

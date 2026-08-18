@@ -3,6 +3,34 @@
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- **A directory that is not a repository opens.** It used to refuse: every mode needed
+  a repository, the browser included, because the listing came from `git ls-files`. But
+  most of what this does is reading, and reading wants a file rather than a history — so
+  a plain directory now opens on the browser and keeps everything that was never git's:
+  the files, any one of them read, its outline, `/` through it, `P` by name, `Enter` to
+  where a name is declared and `R` to everywhere it is not, bookmarks, the reading
+  record, and every question `@` asks an agent with the answer coming back beside the
+  line. `W` watches too, because the file an agent writes answers into was never in the
+  repository anyway.
+
+  The listing is walked instead of asked for, under rules short enough to hold in your
+  head: `.git` is never source at any depth, a symlink to a directory is not followed,
+  and the walk stops at twenty thousand files and says so — a silent cap reads as
+  coverage. Nothing else is skipped by name, so a tree with a large `node_modules` meets
+  the ceiling rather than being quietly edited. Searching is walked and read here in the
+  same way, which is slower than `git grep` and finds the same lines; a pattern is read
+  by JavaScript rather than as git's extended regular expression, and the two part
+  company at the edges.
+
+  What needs a history is withheld — the three diffs, the log, `H`, `B`, `#`, staging,
+  the remote. The footer does not name them, which is the promise it makes everywhere
+  else, and pressing one says so rather than failing at git. A directory that is not
+  there is still refused, because there is nothing in it to read.
+
 ## 1.0.0
 
 The first release. Everything here is what the plugin is, rather than what changed in

@@ -26,6 +26,15 @@ const { enterFullScreen, terminalSize } = require("../lib/run/terminal");
 
 const { EXIT_FAILURE } = session;
 
+/** Whether a path is a directory that can be read. */
+function isDirectory(target) {
+  try {
+    return require("node:fs").statSync(target).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
 function fail(message) {
   process.stderr.write(`herdr-deep-code-reading: ${message}\n`);
   process.exit(EXIT_FAILURE);
@@ -36,9 +45,12 @@ function startUp() {
   const requestedDir = process.env.HERDR_DEEP_CODE_READING_REPO || process.cwd();
   const mode = process.env.HERDR_DEEP_CODE_READING_MODE || DEFAULT_MODE;
 
-  const repoDir = git.resolveRepoRoot(requestedDir);
-  if (repoDir === null) {
-    fail(`not a git repository: ${requestedDir}`);
+  // A directory git has never heard of opens on what it can show — see lib/walk and
+  // createState, which withholds every key that would read a history. Only a directory
+  // that is not there is refused, because there is nothing in it to read.
+  const repoDir = git.resolveRepoRoot(requestedDir) || requestedDir;
+  if (!isDirectory(repoDir)) {
+    fail(`no such directory: ${requestedDir}`);
     return null;
   }
 

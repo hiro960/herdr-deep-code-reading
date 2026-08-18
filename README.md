@@ -29,7 +29,7 @@ you ask for it.
 
 - Herdr 0.8.0 or later
 - Node.js 18 or later
-- git 2.24 or later
+- git 2.24 or later, for everything that reads a history
 
 No runtime dependencies and no build step. git computes the diffs; this plugin parses,
 renders, and routes them.
@@ -181,9 +181,9 @@ whichever diff is already on screen and never changes which one that is.
 | `/` | Search inside the files (`Ctrl+R` for a regular expression) |
 | `Tab` | Show the selection's contents or its own diff |
 
-The listing comes from `git ls-files`, so `.git` and everything `.gitignore` names are
-absent without a filesystem walk. Files over 2MB, and files with a NUL byte in their
-first 8KB, are listed but not read.
+In a repository the listing comes from `git ls-files`, so `.git` and everything
+`.gitignore` names are absent without a filesystem walk. Files over 2MB, and files with
+a NUL byte in their first 8KB, are listed but not read.
 
 **`a` makes a file.** Name it and it exists, empty, under the directory being browsed —
 yazi's key for the same thing. What goes in it is `E`'s business, so the new file opens
@@ -252,6 +252,36 @@ Search is literal by default, because a reader looking for `a.js` or `foo(1)` me
 those characters. `Ctrl+R` in the search field switches it to an extended regular
 expression and back, and the field says which one it is in. The choice is remembered
 for the next search.
+
+## A directory that is not a repository
+
+Most of what this does is reading, and reading wants a file rather than a history. So a
+directory git has never heard of opens on the browser, and what it can show it shows:
+the files, any one of them read, its outline, `/` through it, `P` to another by name,
+`Enter` to where a name is declared and `R` to everywhere it is not, bookmarks, the
+reading record, and every question `@` asks an agent with the answer coming back beside
+the line. Nothing here needs a repository, and nothing here asked for one.
+
+The listing is walked instead of asked for, under rules short enough to hold in your
+head: `.git` is never source at any depth, a symlink to a directory is not followed —
+one loop and a walk never ends — and the walk stops at twenty thousand files and says
+that it stopped. Nothing else is skipped by name: a directory really does contain its
+build output, and a listing that quietly decided otherwise would be answering a question
+nobody asked. A tree with a large `node_modules` in it will meet the ceiling and be told
+so.
+
+Searching is the same trade. `git grep` answers for a repository; here the walked files
+are read and matched in this process, which is slower and finds the same lines. A
+pattern is read by JavaScript rather than as git's extended regular expression, and the
+two part company at the edges — `\d` among them.
+
+What is withheld is what would read a history: the three diffs, the log, `H`, `B`, `#`,
+staging, and the remote. The footer does not name them, which is the promise it makes
+everywhere else, and pressing one out of habit says `No repository here — that key reads
+a history` rather than failing at git.
+
+`W` still watches, because the file an agent writes its answers into is not in the
+repository anyway — which is the half of the watch that matters most here.
 
 ## Reading a diff
 
@@ -771,7 +801,7 @@ it says:
 
 | Variable | Purpose |
 |---|---|
-| `HERDR_DEEP_CODE_READING_REPO` | Repository to review (defaults to the working directory) |
+| `HERDR_DEEP_CODE_READING_REPO` | The directory to read (defaults to the working directory) |
 | `HERDR_DEEP_CODE_READING_MODE` | `review`, `staged`, `branch`, `files`, or `log` (defaults to `review`) |
 | `HERDR_DEEP_CODE_READING_THEME` | The palette, as `theme` above |
 | `HERDR_DEEP_CODE_READING_LAYOUT` | The diff layout, as `layout` above |
