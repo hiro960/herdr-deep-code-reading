@@ -19,6 +19,10 @@ jobs:
     # temporary directory, for one — that one platform would not answer for both.
     name: node ${{ matrix.node }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    # The suite takes well under two minutes on every runner. A job past this is one
+    # that has stopped rather than one that is slow, and a hung runner should say so
+    # in ten minutes rather than hold a queue for six hours.
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
