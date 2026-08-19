@@ -158,6 +158,8 @@ yesterday must not quietly do something else today.
 | `t` | Switch between the split and stacked layouts |
 | `h` / `l`, `←` / `→` | Move the cursor along the line |
 | `w` / `b` | Step between the names on the line |
+| `/` | Find text in this file's diff |
+| `*` | Go to the next place the word under the cursor appears |
 | `Enter` | Jump to where the name under the cursor is defined |
 | `R` | List where that name is used instead |
 | `v` | Start or drop a marked run of lines |
@@ -244,6 +246,7 @@ can be a note to the agent — not only the lines that changed.
 | `h` / `l`, `w` / `b` | Move along the line, or between its names |
 | `/` | Find text in this file |
 | `n` / `N` | Next / previous match |
+| `*` | Go to the next place the word under the cursor appears |
 | `Enter` | Jump to where the name under the cursor is defined |
 | `R` | List where that name is used instead |
 | `o` | List what this file defines (headings, in a markdown document) |
@@ -320,6 +323,19 @@ a history` rather than failing at git.
 
 `W` still watches, because the file an agent writes its answers into is not in the
 repository anyway — which is the half of the watch that matters most here.
+
+## Looking through what is on screen
+
+`/` finds text in the file being read and in the diff of the file being reviewed. It is
+the same search in both, of the rows in front of you rather than of the repository —
+`/` in the browser and `#` are the two that look further.
+
+`*` is vi's, and it is what the diff has instead of `n`. The file list owns `n` and `p`
+there and never takes a turn at being anything else, so a search with no way to repeat
+it would be half a search. `*` needs no second key: it looks for the word under the
+cursor, the jump lands on another spelling of that same word, and the next press carries
+on from there. At the end of the file it wraps and says so. In the reading view `n` and
+`N` still walk a search both ways, and `*` starts one without typing it.
 
 ## Reading a diff
 

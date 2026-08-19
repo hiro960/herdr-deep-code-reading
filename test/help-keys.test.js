@@ -76,6 +76,7 @@ const ADVERTISED = {
   o: ["o"],
   i: ["i"],
   "/": ["/"],
+  "*": ["*"],
   // How the diff was computed rather than how it is drawn — see lib/state/diff-view
   "+/-": ["+", "-"],
   "=": ["="],
@@ -190,7 +191,10 @@ function press(state, keys) {
 
 /** Match a footer token as a whole word, so "e" does not match "delete". */
 function namesToken(help, token) {
-  const escaped = token.replace(/[/+?]/g, (char) => "\\" + char);
+  // Every character a regular expression would read as a pattern. `*` used to be left
+  // as it was, so `(^|\s)*(\s|$)` matched any footer at all and the check reported
+  // keys nothing had advertised.
+  const escaped = token.replace(/[.*+?^${}()|[\]\\/]/g, (char) => "\\" + char);
   return new RegExp(`(^|\\s)${escaped}(\\s|$)`).test(help);
 }
 

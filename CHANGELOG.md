@@ -40,6 +40,17 @@ versions follow [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **`/` finds text in a diff, and `*` walks the word under the cursor.** The reading
+  view has had `/` since the beginning and the diff never did, because `n` and `p` are
+  the file list there and never take a turn at being anything else — so a search with no
+  way to repeat it would have been half a search. `*` is the way round it, and it is
+  vi's: it looks for the word under the cursor, and since the jump lands on another
+  spelling of that same word, the next press carries on from there. No second key, and
+  none taken from anything. `/` composes with it, because a match leaves the column on
+  the text it found. Both search the rows on screen — the file being read, or the diff
+  of the file being reviewed — and `*` means the same thing in both views.
+
+
 - **The browser copies, renames and deletes a file.** yazi's keys for the same four
   things, in the screen they were borrowed from: `y` remembers the file under the cursor
   and `p` writes it into the directory you have walked to, under its own name; `r`
